@@ -1,0 +1,19 @@
+{
+  "thehive": {
+    "url": "http://localhost:9000",
+    "apikey": "Ga9qemIC1LbxBidchDNCPQXBNQp7naHi"
+  },
+  "cortex": {
+    "url": "http://localhost:9001",
+    "apikey": "EyZaoGa4f8y8yZc7sjZRPqnphoiUWUOS",
+    "id": "local"
+  },
+  "misp": {
+    "id": "MISP THP"
+  },
+  "case": {
+    "tlp": "2",
+    "pap": "2",
+    "tags": ["email", "PhishAndChips"]
+  }
+}

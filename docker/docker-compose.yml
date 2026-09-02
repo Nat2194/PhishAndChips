@@ -1,0 +1,110 @@
+version: "3.8"
+services:
+  cassandra:
+    image: cassandra:3.11
+    container_name: cassandra_test
+    restart: unless-stopped
+    hostname: cassandra
+    environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=1G
+      - CASSANDRA_CLUSTER_NAME=thp
+    volumes:
+      - ./vol/cassandra-data:/var/lib/cassandra/data
+
+  thehive:
+    image: thehiveproject/thehive4:4.1.9-1
+    container_name: thehive_test
+    restart: unless-stopped
+    depends_on:
+      - cassandra
+    ports:
+      - "0.0.0.0:9000:9000"
+    volumes:
+      - ./thehive/application.conf:/etc/thehive/application.conf
+      - ./vol/data:/opt/data
+      - ./vol/index:/opt/index
+    command: "--no-config --no-config-secret"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    container_name: elasticsearch_test
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:9200:9200"
+    environment:
+      - http.host=0.0.0.0
+      - discovery.type=single-node
+      - cluster.name=hive
+      - script.allowed_types= inline
+      - thread_pool.search.queue_size=100000
+      - thread_pool.write.queue_size=10000
+      - gateway.recover_after_nodes=1
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - ./vol/elasticsearch_data:/usr/share/elasticsearch/data
+      - ./vol/elasticsearch_logs:/usr/share/elasticsearch/logs
+
+  cortex:
+    image: thehiveproject/cortex:3.1.1-1
+    container_name: cortex_test
+    restart: unless-stopped
+    volumes:
+      - ./cortex/application.conf:/etc/cortex/application.conf
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    environment:
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+    depends_on:
+      - elasticsearch
+    ports:
+      - "0.0.0.0:9001:9001"
+
+  redis:
+    image: redis:6.2.5
+    container_name: redis_test
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0.19
+    container_name: mysql_test
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - "MYSQL_USER=misp"
+      - "MYSQL_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=misp"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  misp:
+    image: coolacid/misp-docker:core-latest
+    container_name: misp_test
+    depends_on:
+      - redis
+      - db
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+      - "./server-configs/:/var/www/MISP/app/Config/"
+      - "./logs/:/var/www/MISP/app/tmp/logs/"
+      - "./files/:/var/www/MISP/app/files"
+      - "./ssl/:/etc/nginx/certs"
+    environment:
+      - "HOSTNAME=https://localhost"
+      - "REDIS_FQDN=redis"
+      - "INIT=true"
+      - "CRON_USER_ID=1"
+      - "DISIPV6=true"
+
+volumes:
+  mysql_data:

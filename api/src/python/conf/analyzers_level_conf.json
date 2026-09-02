@@ -1,0 +1,196 @@
+{
+  "MISP_2_1": {
+    "dataType": [
+      "url",
+      "ip",
+      "domain",
+      "mail",
+      "fqdn",
+      "uri_path",
+      "user-agent",
+      "hash",
+      "mail_subject",
+      "registry",
+      "regexp",
+      "other",
+      "filename"
+    ],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Abuse_Finder_3_0": {
+    "dataType": ["ip", "domain", "fqdn", "url", "mail"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "CIRCLHashlookup_1_1": {
+    "dataType": ["hash"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Crt_sh_Transparency_Logs_1_0": {
+    "dataType": ["domain"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "CyberCrime-Tracker_1_0": {
+    "dataType": ["domain", "fqdn", "ip", "url", "other"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "DShield_lookup_1_0": {
+    "dataType": ["ip"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "EmailRep_1_0": {
+    "dataType": ["mail"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "EmlParser_2_1": {
+    "dataType": ["file"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Fortiguard_URLCategory_2_1": {
+    "dataType": ["domain", "url", "fqdn"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "GoogleDNS_resolve_1_0_0": {
+    "dataType": ["domain", "ip", "fqdn"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "GoogleSafebrowsing_2_0": {
+    "dataType": ["url", "domain"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Hashdd_Status_2_0": {
+    "dataType": ["hash"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Maltiverse_Report_1_0": {
+    "dataType": ["hash", "domain", "ip", "url"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "MaxMind_GeoIP_4_0": {
+    "dataType": ["ip"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "SpamhausDBL_1_0": {
+    "dataType": ["domain", "fqdn"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "StopForumSpam_1_0": {
+    "dataType": ["ip", "mail"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "TalosReputation_1_0": {
+    "dataType": ["ip"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "TeamCymruMHR_1_0": {
+    "dataType": ["hash"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Threatcrowd_1_0": {
+    "dataType": ["mail", "ip", "domain", "fqdn"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  },
+  "Urlscan_io_Search_0_1_1": {
+    "dataType": ["ip", "domain", "hash", "fqdn", "url"],
+    "levelMapping": {
+      "malicious": "malicious",
+      "suspicious": "suspicious",
+      "safe": "safe",
+      "info": "info"
+    }
+  }
+}

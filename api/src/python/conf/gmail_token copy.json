@@ -1,0 +1,8 @@
+{
+  "token": "[token]",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.modify"
+  ],
+  "expiry": "2023-07-03T23:21:34.671783Z"
+}

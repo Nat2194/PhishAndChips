@@ -1,0 +1,17 @@
+{
+  "eslint.workingDirectories": [
+    "./api",
+    "./api/src",
+    "./api/src/email",
+    "./website",
+    "./website/public",
+    "./website/src"
+  ],
+  "eslint.options": {
+    "configFile": "C:/Users/Nathan/L3-S6-PRJ-Solution-Factory/website/babel.config.js"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.formatting.provider": "none"
+}
