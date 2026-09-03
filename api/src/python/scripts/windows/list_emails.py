@@ -40,7 +40,6 @@ output_file_path = os.path.normpath(output_file_path)
 
 
 def connect_to_Gmail_API():
-    token_file_path = "token.json"
     creds = None
 
     if os.path.exists(token_file_path):
