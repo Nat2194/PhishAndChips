@@ -8,7 +8,10 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from dotenv import load_dotenv
 
+# Load variables from the .env file
+load_dotenv()
 
 # Global variable used for logging
 log = None
@@ -25,9 +28,6 @@ conf_file_path = os.path.join(script_dir, "..", "..", "conf", "configuration.jso
 # Absolute path of the logging configuration file
 log_conf_file_path = os.path.join(script_dir, "..", "..", "conf", "logging_conf.json")
 
-# Absolute path of the OAuth 2.0 key file
-key_file_path = os.path.join(script_dir, "..", "..", "conf", "gmail_key.json")
-
 # Absolute path of the token file
 token_file_path = os.path.join(script_dir, "..", "..", "conf", "gmail_token.json")
 
@@ -35,45 +35,43 @@ token_file_path = os.path.join(script_dir, "..", "..", "conf", "gmail_token.json
 output_file_path = os.path.join(script_dir, "..", "..", "output", "emails.json")
 
 # Normalize the relative paths to obtain the correct absolute paths
-key_file_path = os.path.normpath(key_file_path)
 token_file_path = os.path.normpath(token_file_path)
 output_file_path = os.path.normpath(output_file_path)
 
 
 def connect_to_Gmail_API():
-    # Load credentials from token file if it exists
+    token_file_path = "token.json"
     creds = None
+
     if os.path.exists(token_file_path):
         creds = Credentials.from_authorized_user_file(token_file_path)
 
-    # If credentials are not valid, authenticate and generate new token
     if creds and not creds.valid:
-        creds.refresh(Request())
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            with open(token_file_path, "w") as token_file:
+                token_file.write(creds.to_json())
+        else:
+            creds = None
 
-        # Save the refreshed credentials to the token file
-        with open(token_file_path, "w") as token_file:
-            token_file.write(creds.to_json())
-
-    # If credentials do not exist, authenticate and generate new token
     if not creds:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            key_file_path,
+        # Load the raw JSON string from the environment variable
+        client_config = json.loads(os.getenv("GOOGLE_CREDENTIALS_JSON"))
+
+        # Use from_client_config instead of a file path
+        flow = InstalledAppFlow.from_client_config(
+            client_config,
             [
-                "https://www.googleapis.com/auth/gmail.readonly",
                 "https://www.googleapis.com/auth/gmail.modify",
+                "https://www.googleapis.com/auth/gmail.send",
             ],
-            redirect_uri="http://localhost:8000/",
         )
         creds = flow.run_local_server(port=8000)
 
-        # Save the credentials to the token file
         with open(token_file_path, "w") as token_file:
             token_file.write(creds.to_json())
 
-    # Build the Gmail service
     service = build("gmail", "v1", credentials=creds)
-    log.info("Connection réussie à l'API GMail")
-
     return service
 
 
