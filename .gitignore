@@ -66,3 +66,6 @@ node_modules
 # Secrets
 /api/src/python/conf/gmail_key.json
 /api/src/python/conf/gmail_token.json
+
+# Venv
+/venv/

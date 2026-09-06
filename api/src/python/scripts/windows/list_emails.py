@@ -153,17 +153,6 @@ def get_email_body(msg):
     return body
 
 
-def print_payload_keys(payload):
-    for key in payload:
-        print(key)
-        if isinstance(payload[key], dict):
-            print_payload_keys(payload[key])
-        elif isinstance(payload[key], list):
-            for item in payload[key]:
-                if isinstance(item, dict):
-                    print_payload_keys(item)
-
-
 # Utility function to find an EML attachment in an email
 def find_eml_attachment(msg, service):
     eml_attachment_found = False

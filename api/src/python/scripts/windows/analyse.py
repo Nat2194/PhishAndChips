@@ -22,7 +22,6 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-
 # Global variable used for logging
 log = None
 
@@ -53,18 +52,31 @@ analyzers_conf_file_path = os.path.join(
 # Absolute path of the whitelist file
 whitelist_file_path = os.path.join(script_dir, "..", "..", "conf", "whitelist.json")
 
-# Absolute path of the OAuth 2.0 key file
-key_file_path = os.path.join(script_dir, "..", "..", "conf", "gmail_key.json")
-
 # Absolute path of the token file
 token_file_path = os.path.join(script_dir, "..", "..", "conf", "gmail_token.json")
 
 
 # Normalize the relative paths to obtain the correct absolute paths
-key_file_path = os.path.normpath(key_file_path)
 token_file_path = os.path.normpath(token_file_path)
 analyzers_conf_file_path = os.path.normpath(analyzers_conf_file_path)
 whitelist_file_path = os.path.normpath(whitelist_file_path)
+
+# Surcharge par les variables d'environnement (prioritaires)
+# THEHIVE
+THEHIVE_URL = os.getenv("THEHIVE_URL", config["thehive"]["url"])
+THEHIVE_API_KEY = os.getenv("THEHIVE_API_KEY", config["thehive"]["apikey"])
+
+# CORTEX
+CORTEX_URL = os.getenv("CORTEX_URL", config["cortex"]["url"])
+CORTEX_API_KEY = os.getenv("CORTEX_API_KEY", config["cortex"]["apikey"])
+CORTEX_ID = os.getenv("CORTEX_ID", config["cortex"]["id"])
+
+# MISP
+MISP_ID = os.getenv("MISP_ID", config["misp"]["id"])
+
+# Vérification de sécurité optionnelle (pour le debug)
+if not THEHIVE_API_KEY or not CORTEX_API_KEY:
+    print("ATTENTION: Les clés d'API TheHive ou Cortex sont manquantes.")
 
 
 # Detects if there is already a case being processed
@@ -111,19 +123,20 @@ def connect_to_Gmail_API(sio):
         with open(token_file_path, "w") as token_file:
             token_file.write(creds.to_json())
 
-    # If credentials do not exist, authenticate and generate new token
-    if not creds:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            key_file_path,
+        # If credentials do not exist, authenticate and generate new token
+        # Load the raw JSON string from the environment variable
+        client_config = json.loads(os.getenv("GOOGLE_CREDENTIALS_JSON"))
+
+        # Use from_client_config instead of a file path
+        flow = InstalledAppFlow.from_client_config(
+            client_config,
             [
-                "https://www.googleapis.com/auth/gmail.readonly",
                 "https://www.googleapis.com/auth/gmail.modify",
+                "https://www.googleapis.com/auth/gmail.send",
             ],
-            redirect_uri="http://localhost:8000/",
         )
         creds = flow.run_local_server(port=8000)
 
-        # Save the credentials to the token file
         with open(token_file_path, "w") as token_file:
             token_file.write(creds.to_json())
 
@@ -1379,14 +1392,13 @@ def run_analysis(case, mail_to, sio):
     global api_cortex
     global conf_analyzers_level
 
-    # TheHive, Cortex and MISP configuration
     try:
         with open(conf_file_path) as conf_file:
             conf_dict = json.load(conf_file)
-            config["cortexURL"] = conf_dict["cortex"]["url"]
-            config["cortexApiKey"] = conf_dict["cortex"]["apikey"]
-            config["cortexID"] = conf_dict["cortex"]["id"]
-            config["mispID"] = conf_dict["misp"]["id"]
+            config["cortexURL"] = CORTEX_URL
+            config["cortexApiKey"] = CORTEX_API_KEY
+            config["cortexID"] = CORTEX_ID
+            config["mispID"] = MISP_ID
     except Exception as e:
         log.error(
             "Error while trying to open the file 'configuration.json': {}".format(
@@ -1555,8 +1567,8 @@ def main(mail_uid, port):
             conf_dict = json.load(conf_file)
 
             # TheHive configuration
-            config["thehiveURL"] = conf_dict["thehive"]["url"]
-            config["thehiveApiKey"] = conf_dict["thehive"]["apikey"]
+            config["thehiveURL"] = THEHIVE_URL
+            config["thehiveApiKey"] = THEHIVE_API_KEY
 
             # New case configuration
             config["caseTLP"] = conf_dict["case"]["tlp"]

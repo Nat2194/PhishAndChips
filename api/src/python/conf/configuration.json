@@ -1,11 +1,11 @@
 {
   "thehive": {
     "url": "http://localhost:9000",
-    "apikey": "Ga9qemIC1LbxBidchDNCPQXBNQp7naHi"
+    "apikey": ""
   },
   "cortex": {
     "url": "http://localhost:9001",
-    "apikey": "EyZaoGa4f8y8yZc7sjZRPqnphoiUWUOS",
+    "apikey": "",
     "id": "local"
   },
   "misp": {

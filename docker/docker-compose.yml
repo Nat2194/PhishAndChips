@@ -1,5 +1,48 @@
 version: "3.8"
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+  soc-net:
+    driver: bridge
+
 services:
+  # ==========================================
+  # PHISHANDCHIPS (Custom Apps)
+  # ==========================================
+  website:
+    build: ../website
+    container_name: phishandchips_website
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    networks:
+      - frontend-net
+    depends_on:
+      - api
+
+  api:
+    build: ../api
+    container_name: phishandchips_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - frontend-net
+      - backend-net
+      - soc-net
+    depends_on:
+      - thehive
+      - cortex
+      - misp
+
+  # ==========================================
+  # SOC TOOLS (TheHive, Cortex, MISP)
+  # ==========================================
   cassandra:
     image: cassandra:3.11
     container_name: cassandra_test
@@ -11,13 +54,18 @@ services:
       - CASSANDRA_CLUSTER_NAME=thp
     volumes:
       - ./vol/cassandra-data:/var/lib/cassandra/data
+    networks:
+      - soc-net
 
   thehive:
     image: thehiveproject/thehive4:4.1.9-1
     container_name: thehive_test
     restart: unless-stopped
+    environment:
+      - THEHIVE_SECRET=${THEHIVE_SECRET}
     depends_on:
       - cassandra
+      - elasticsearch
     ports:
       - "0.0.0.0:9000:9000"
     volumes:
@@ -25,13 +73,13 @@ services:
       - ./vol/data:/opt/data
       - ./vol/index:/opt/index
     command: "--no-config --no-config-secret"
+    networks:
+      - soc-net
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
     container_name: elasticsearch_test
     restart: unless-stopped
-    ports:
-      - "0.0.0.0:9200:9200"
     environment:
       - http.host=0.0.0.0
       - discovery.type=single-node
@@ -50,27 +98,34 @@ services:
     volumes:
       - ./vol/elasticsearch_data:/usr/share/elasticsearch/data
       - ./vol/elasticsearch_logs:/usr/share/elasticsearch/logs
+    networks:
+      - soc-net
 
   cortex:
     image: thehiveproject/cortex:3.1.1-1
     container_name: cortex_test
     restart: unless-stopped
+    environment:
+      - CORTEX_SECRET=${CORTEX_SECRET}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
     volumes:
       - ./cortex/application.conf:/etc/cortex/application.conf
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
-    environment:
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
     depends_on:
       - elasticsearch
     ports:
       - "0.0.0.0:9001:9001"
+    networks:
+      - soc-net
 
   redis:
     image: redis:6.2.5
     container_name: redis_test
     restart: unless-stopped
+    networks:
+      - soc-net
 
   db:
     image: mysql:8.0.19
@@ -79,11 +134,13 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       - "MYSQL_USER=misp"
-      - "MYSQL_PASSWORD=example"
-      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
       - "MYSQL_DATABASE=misp"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - soc-net
 
   misp:
     image: coolacid/misp-docker:core-latest
@@ -100,11 +157,13 @@ services:
       - "./files/:/var/www/MISP/app/files"
       - "./ssl/:/etc/nginx/certs"
     environment:
-      - "HOSTNAME=https://localhost"
+      - "HOSTNAME=${MISP_BASEURL}"
       - "REDIS_FQDN=redis"
       - "INIT=true"
       - "CRON_USER_ID=1"
       - "DISIPV6=true"
+    networks:
+      - soc-net
 
 volumes:
   mysql_data:
